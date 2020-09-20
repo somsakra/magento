@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  mariadb:
+    image: 'docker.io/bitnami/mariadb:10.3-debian-10'
+    container_name: mariadb
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_USER=bn_magento
+      - MARIADB_PASSWORD=magento_db_password
+      - MARIADB_DATABASE=bitnami_magento
+    volumes:
+      - type: volume
+        source: mariadb-data
+        target: /bitnami/mariadb/data
+  magento:
+    image: 'docker.io/bitnami/magento:2-debian-10'
+    container_name: magento
+    environment:
+      - MARIADB_HOST=mariadb
+      - MARIADB_PORT_NUMBER=3306
+      - MAGENTO_DATABASE_USER=bn_magento
+      - MAGENTO_DATABASE_PASSWORD=magento_db_password
+      - MAGENTO_DATABASE_NAME=bitnami_magento
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT_NUMBER=9200
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - type: volume
+        source: magento-data
+        target: /bitnami
+    depends_on:
+      - mariadb
+      - elasticsearch
+  elasticsearch:
+    image: 'docker.io/bitnami/elasticsearch:6-debian-10'
+    container_name: elasticsearch
+    volumes:
+      - type: volume
+        source: elasticsearch-data
+        target: /bitnami/elasticsearch/data
+
+volumes:
+  magento-data:
+  mariadb-data:
+  elasticsearch-data:
